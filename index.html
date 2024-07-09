@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clickeur avec Boutique, Sauvegarde et Leaderboard</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #f0f0f0;
+    }
+    .container {
+        margin-top: 50px;
+    }
+    #score {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    #clickArea {
+        width: 200px;
+        height: 200px;
+        background-color: #3498db;
+        color: white;
+        font-size: 18px;
+        line-height: 200px;
+        border-radius: 50%;
+        cursor: pointer;
+        margin: 0 auto;
+        transition: background-color 0.3s ease;
+    }
+    #clickArea:hover {
+        background-color: #2980b9;
+    }
+    .upgrade {
+        display: inline-block;
+        background-color: #2ecc71;
+        color: white;
+        padding: 10px 20px;
+        margin: 10px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    .upgrade:hover {
+        transform: scale(1.1);
+    }
+    #leaderboard {
+        margin-top: 50px;
+        text-align: left;
+    }
+    #leaderboard h2 {
+        font-size: 20px;
+    }
+    #leaderboard ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    #leaderboard li {
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Clickeur avec Boutique, Sauvegarde et Leaderboard</h1>
+    <p>Cliquez sur le cercle pour augmenter votre score !</p>
+    <p id="score">Score: <span id="scoreValue">0</span></p>
+    <div id="clickArea">Cliquez ici</div>
+    <div id="shop">
+        <h2>Boutique</h2>
+        <button class="upgrade" id="clicsPerClick">Améliorer les clics par clic (10 clics)</button>
+        <button class="upgrade" id="clicsPerSecond">Améliorer les clics par seconde (50 clics)</button>
+    </div>
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList">
+            <!-- Les scores seront ajoutés dynamiquement ici -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Récupération des éléments DOM
+    const clickArea = document.getElementById('clickArea');
+    const scoreValue = document.getElementById('scoreValue');
+    const clicsPerClickBtn = document.getElementById('clicsPerClick');
+    const clicsPerSecondBtn = document.getElementById('clicsPerSecond');
+    const leaderboardList = document.getElementById('leaderboardList');
+
+    let clique = 0;
+    let clicsPerClick = 1;
+    let clicsPerSecond = 0;
+
+    let clicsPerClickCost = 10;
+    let clicsPerSecondCost = 50;
+
+    // Scores fictifs pour le leaderboard
+    const leaderboardScores = [
+        { name: 'Joueur 1', score: 1000000 },
+        { name: 'Joueur 2', score: 750000 },
+        { name: 'Joueur 3', score: 500000 },
+        { name: 'Joueur 4', score: 250000 },
+        { name: 'Joueur 5', score: 100000 }
+    ];
+
+    // Affichage initial du leaderboard
+    leaderboardScores.forEach((score, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${index + 1}. ${score.name} - ${score.score} clics`;
+        leaderboardList.appendChild(li);
+    });
+
+    // Fonction pour mettre à jour l'affichage du score
+    function updateCliqueDisplay() {
+        scoreValue.textContent = clique;
+        saveGame(); // Sauvegarde le jeu à chaque mise à jour du score
+    }
+
+    // Fonction pour mettre à jour les clics par seconde
+    function updateClicsPerSecond() {
+        clique += clicsPerSecond;
+        updateCliqueDisplay();
+    }
+
+    // Fonction de sauvegarde du jeu
+    function saveGame() {
+        localStorage.setItem('clickeurSave', JSON.stringify({
+            clique: clique,
+            clicsPerClick: clicsPerClick,
+            clicsPerSecond: clicsPerSecond,
+            clicsPerClickCost: clicsPerClickCost,
+            clicsPerSecondCost: clicsPerSecondCost
+        }));
+    }
+
+    // Fonction de chargement du jeu
+    function loadGame() {
+        const saveData = JSON.parse(localStorage.getItem('clickeurSave'));
+        if (saveData) {
+            clique = saveData.clique || 0;
+            clicsPerClick = saveData.clicsPerClick || 1;
+            clicsPerSecond = saveData.clicsPerSecond || 0;
+            clicsPerClickCost = saveData.clicsPerClickCost || 10;
+            clicsPerSecondCost = saveData.clicsPerSecondCost || 50;
+            updateCliqueDisplay();
+
+            // Charger les améliorations automatiques si déjà achetées
+            if (clicsPerSecond > 0) {
+                setInterval(function() {
+                    updateClicsPerSecond();
+                }, 1000);
+            }
+
+            // Mettre à jour le texte des boutons avec les coûts sauvegardés
+            clicsPerClickBtn.textContent = `Améliorer les clics par clic (${clicsPerClickCost} clics)`;
+            clicsPerSecondBtn.textContent = `Améliorer les clics par seconde (${clicsPerSecondCost} clics)`;
+        }
+    }
+
+    // Charger le jeu au chargement de la page
+    loadGame();
+
+    // Ajout d'un événement de clic au cercle
+    clickArea.addEventListener('click', function() {
+        clique += clicsPerClick;
+        updateCliqueDisplay();
+    });
+
+    // Ajout d'un événement de clic pour améliorer les clics par clic
+    clicsPerClickBtn.addEventListener('click', function() {
+        if (clique >= clicsPerClickCost) {
+            clique -= clicsPerClickCost; // Déduire le coût des clics pour acheter l'amélioration
+            clicsPerClick++;
+            clicsPerClickCost *= 2; // Augmenter le coût pour la prochaine amélioration
+            updateCliqueDisplay();
+            clicsPerClickBtn.textContent = `Améliorer les clics par clic (${clicsPerClickCost} clics)`;
+            saveGame(); // Sauvegarde le jeu après l'achat
+            animateButton(clicsPerClickBtn); // Animation du bouton
+        } else {
+            alert("Vous n'avez pas assez de clics pour acheter cette amélioration.");
+        }
+    });
+
+    // Ajout d'un événement de clic pour améliorer les clics par seconde
+    clicsPerSecondBtn.addEventListener('click', function() {
+        if (clique >= clicsPerSecondCost) {
+            clique -= clicsPerSecondCost; // Déduire le coût des clics pour acheter l'amélioration
+            clicsPerSecond++;
+            clicsPerSecondCost *= 2; // Augmenter le coût pour la prochaine amélioration
+            updateCliqueDisplay();
+            clicsPerSecondBtn.textContent = `Améliorer les clics par seconde (${clicsPerSecondCost} clics)`;
+            saveGame(); // Sauvegarde le jeu après l'achat
+            animateButton(clicsPerSecondBtn); // Animation du bouton
+
+            // Mettre à jour automatiquement les clics par seconde toutes les secondes
+            setInterval(function() {
+                updateClicsPerSecond();
+            }, 1000);
+        } else {
+            alert("Vous n'avez pas assez de clics pour acheter cette amélioration.");
+        }
+    });
+</script>
+</body>
+  </html>
