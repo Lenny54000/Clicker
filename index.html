@@ -166,6 +166,14 @@
         updateCliqueDisplay();
     });
 
+    // Fonction pour l'animation lors du clic sur les boutons
+    function animateButton(btn) {
+        btn.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            btn.style.transform = 'scale(1)';
+        }, 200);
+    }
+
     // Ajout d'un événement de clic pour améliorer les clics par clic
     clicsPerClickBtn.addEventListener('click', function() {
         if (clique >= clicsPerClickCost) {
@@ -192,14 +200,16 @@
             saveGame(); // Sauvegarde le jeu après l'achat
             animateButton(clicsPerSecondBtn); // Animation du bouton
 
-            // Mettre à jour automatiquement les clics par seconde toutes les secondes
-            setInterval(function() {
-                updateClicsPerSecond();
-            }, 1000);
+            // Assurer que l'intervalle ne soit pas défini plusieurs fois
+            if (clicsPerSecond === 1) {
+                setInterval(function() {
+                    updateClicsPerSecond();
+                }, 1000);
+            }
         } else {
             alert("Vous n'avez pas assez de clics pour acheter cette amélioration.");
         }
     });
 </script>
 </body>
-  </html>
+</html>
