@@ -62,7 +62,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Clickeurq</h1>
+    <h1>Clickeur</h1>
     <p>Cliquez sur le cercle pour augmenter votre score !</p>
     <p id="score">Score: <span id="scoreValue">0</span></p>
     <div id="clickArea">Cliquez ici</div>
@@ -179,7 +179,7 @@
         if (clique >= clicsPerClickCost) {
             clique -= clicsPerClickCost; // Déduire le coût des clics pour acheter l'amélioration
             clicsPerClick++;
-            clicsPerClickCost *= 2; // Augmenter le coût pour la prochaine amélioration
+            clicsPerClickCost = Math.floor(clicsPerClickCost * 1.5); // Augmenter le coût pour la prochaine amélioration
             updateCliqueDisplay();
             clicsPerClickBtn.textContent = `Améliorer les clics par clic (${clicsPerClickCost} clics)`;
             saveGame(); // Sauvegarde le jeu après l'achat
@@ -194,7 +194,7 @@
         if (clique >= clicsPerSecondCost) {
             clique -= clicsPerSecondCost; // Déduire le coût des clics pour acheter l'amélioration
             clicsPerSecond++;
-            clicsPerSecondCost *= 2; // Augmenter le coût pour la prochaine amélioration
+            clicsPerSecondCost = Math.floor(clicsPerSecondCost * 1.5); // Augmenter le coût pour la prochaine amélioration
             updateCliqueDisplay();
             clicsPerSecondBtn.textContent = `Améliorer les clics par seconde (${clicsPerSecondCost} clics)`;
             saveGame(); // Sauvegarde le jeu après l'achat
